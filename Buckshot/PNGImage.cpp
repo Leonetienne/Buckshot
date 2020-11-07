@@ -1,4 +1,5 @@
 #include "PNGImage.h"
+#include "DebugLog.h"
 
 PNGImage::PNGImage(const std::size_t width, const std::size_t height)
 {
@@ -40,13 +41,13 @@ void PNGImage::CopyPixelBuffer(const unsigned char* pixelBuffer)
 
 bool PNGImage::SaveToFile(std::string filename)
 {
-	png_byte p;
 	png_infop info;
 	png_structp png;
 	png_bytep* row_pointers;
 
 
 	// Initialize libpng structs
+	DebugLog("Initializing libpng structs...");
 	png = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
 	if (!png)
 	{
@@ -72,6 +73,7 @@ bool PNGImage::SaveToFile(std::string filename)
 
 
 	// Write png header
+	DebugLog("Writing png header...");
 	if (setjmp(png_jmpbuf(png)))
 	{
 		lastError = "Error during writing header!";
@@ -82,6 +84,7 @@ bool PNGImage::SaveToFile(std::string filename)
 
 	
 	// Create libpng pixel buffer
+	DebugLog("Creating libpng pixel buffer...");
 	row_pointers = (png_bytep*)calloc(height, sizeof(png_bytep));
 	for (std::size_t i = 0; i < height; i++)
 	{
@@ -91,6 +94,7 @@ bool PNGImage::SaveToFile(std::string filename)
 
 
 	// Write png bytes
+	DebugLog("Writing bytes...");
 	if (setjmp(png_jmpbuf(png)))
 	{
 		lastError = "Error during writing bytes!";
@@ -100,6 +104,7 @@ bool PNGImage::SaveToFile(std::string filename)
 
 
 	// End write
+	DebugLog("Ending write...");
 	if (setjmp(png_jmpbuf(png)))
 	{
 		lastError = "Error during end of write!";

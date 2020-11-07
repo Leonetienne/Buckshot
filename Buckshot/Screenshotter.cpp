@@ -44,9 +44,9 @@ PNGImage Screenshotter::TakeScreenshotOfForegroundWindow()
     // Create png image
     DebugLog("Creating png...");
     PNGImage png(winSize.x, winSize.y);
-    for (std::size_t x = 0; x < winSize.x; x++)
+    for (std::size_t x = 0; x < (std::size_t)winSize.x; x++)
     {
-        for (std::size_t y = 0; y < winSize.y; y++)
+        for (std::size_t y = 0; y < (std::size_t)winSize.y; y++)
         {
             unsigned char** pixel = png.At(x, winSize.y - y - 1); // the rgbquad array is for some reason y=0 -> bottom
             *pixel[0] = pixels[(y * winSize.x) + x].rgbRed;

@@ -1,0 +1,68 @@
+# Buckshot config file
+
+
+# If you don't want to read all this stuff:
+# It works just out of the box. F2 is the default screenshot key.
+
+
+# Explanation:
+# defaultSavePath: directory where to save the screenshots. It MUST already exist.
+# defaultNamingScheme: How to name the screenshots. It will always be in png format!
+# Naming variables are:
+#   Naming variables are:
+#       $(winName) : the windows title. For example "World of Shipcraft"
+#       $(time)    : the time the screenshot was taken at. For example "07-11-2020 21-16-50"
+#       $(unixtime): the timestamp the screenshot was taken at. For example "1604780697"
+# Tip: Use ONLY backslashes! (\). Note that JSON requires you to escape a \ as \\
+# useWhiteListInstead: Use the whitelist instead of the blacklist?
+# Tip: App names are simply their window's name. Not the name of the executeable! The name you see in the window's header bar!
+# appWhitelist: Only take screenshots of these apps. Must set useWhiteListInstead to true!
+# appBlacklist: Don't take screenshots of these apps! Must set useWhiteListInstead to false!
+# savePathsPerApp: Overwrite the save path for specific apps
+# namingSchemePerApp: Overwrite the naming scheme for specific apps
+
+# keybind: An array of key-ids that need to be pressed all at once to take a screenshot. The default (113) is just F2. 
+#    To use, let's say, ALT+DEL you would use this: ""keybind": [ 18, 46 ]" 18 is they key id of ALT and 46 of DEL.
+#    A complete list of key ids: https://docs.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
+#    Do note that the key ids listed there are HEXADECIMAL! Json only supports DECIMAL values!
+#    A few more commonly used key ids are: 
+#       LSHIFT    : 160
+#       RSHIFT    : 161
+#       LCTRL     : 162
+#       RCTRL     : 163
+#       ALT       : 18
+#       DEL       : 46
+#       F1-F24    : 112 - 136
+#       0-9       : 48 - 57
+#       0-9 numpad: 96 - 105
+
+
+# ################## EDITABLE CONFIG BELOW ###################
+
+{
+  "showDebugConsole": false,
+  "keybind": [
+    113
+  ],
+  "defaultSavePath": "screenshots",
+  "defaultNamingScheme": "$(winName) - $(time).png",
+  "useWhiteListInstead": false,
+  "appWhitelist": [],
+  "appBlacklist": [],
+  "savePathsPerApp": [
+    {
+      "app": "World of Shipduty",
+      "path": "C:\\my WoS screenshots\""
+    },
+    {
+      "app": "Call of Warcraft",
+      "path": "C:\\user\\piggyback\\images\\my CoW screenshots\""
+    }
+  ],
+  "namingSchemePerApp": [
+    {
+      "app": "World of Shipduty",
+      "scheme": "WoS - $(time).png"
+    }
+  ]
+}
