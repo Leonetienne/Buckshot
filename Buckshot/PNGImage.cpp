@@ -108,5 +108,5 @@ bool PNGImage::SaveToFile(std::string filename)
 	}
 	free(row_pointers);
 
-	return false;
+	return true;
 }

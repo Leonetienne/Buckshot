@@ -84,7 +84,7 @@ void TakeScreenshot()
     {
         for (std::size_t y = 0; y < winSize.y; y++)
         {
-            unsigned char** pixel = png.At(x, winSize.y - y - 1);
+            unsigned char** pixel = png.At(x, winSize.y - y - 1); // the rgbquad array is for some reason y=0 -> bottom
             *pixel[0] = pixels[(y * winSize.x) + x].rgbRed;
             *pixel[1] = pixels[(y * winSize.x) + x].rgbGreen;
             *pixel[2] = pixels[(y * winSize.x) + x].rgbBlue;
@@ -96,7 +96,11 @@ void TakeScreenshot()
     std::stringstream filename;
     filename << winTitle << " - " << GetTimeString() << ".png";
     //std::cout << filename.str() << std::endl;
-    png.SaveToFile(std::string("screenshots\\") + SanitizeFilename(filename.str()));
+
+    if (!png.SaveToFile(std::string("screenshots\\") + SanitizeFilename(filename.str())))
+    {
+        std::cerr << "Failed to save screenshot: " << png.GetLastError() << std::endl;
+    }
 
     //std::cout << "Saved png!" << std::endl;
 
