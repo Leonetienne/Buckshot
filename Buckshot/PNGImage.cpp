@@ -18,6 +18,14 @@ PNGImage::PNGImage(const std::size_t width, const std::size_t height, const unsi
 	CopyPixelBuffer(pixelBuffer);
 }
 
+PNGImage::PNGImage(const PNGImage& other)
+{
+	this->width = other.width;
+	this->height = other.height;
+	this->pixelBuffer = new unsigned char[width * height * 3];
+	CopyPixelBuffer(other.pixelBuffer);
+}
+
 PNGImage::~PNGImage()
 {
 	delete[] pixelBuffer;

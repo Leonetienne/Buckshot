@@ -15,6 +15,9 @@ public:
 	// Will create a new image of size width, height and copy the pixel buffer given
 	PNGImage(const std::size_t width, const std::size_t height, const unsigned char* pixelBuffer);
 
+	// Copy-Constructor
+	PNGImage(const PNGImage& other);
+
 	~PNGImage();
 
 	// Will return the raw pixel buffer used. Format is rgbrgbrgbrgbrgbrgbrgb... All rows concatenated
