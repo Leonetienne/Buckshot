@@ -13,6 +13,8 @@ This is usually not a problem, but if Buckshot is open twice, it will take TWO s
 
 
 ## The config file
+If you do not have a config file, run Buckshot once and it will create one for you.  
+Do note that Buckshot runs in the background by default and you will have to either kill it via taskmgr to start another instance and click "kill old instance".  
 
 Example config file with explanation
 ```
