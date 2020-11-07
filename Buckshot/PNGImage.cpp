@@ -98,6 +98,7 @@ bool PNGImage::SaveToFile(std::string filename)
 		return false;
 	}
 	png_write_end(png, NULL);
+	fclose(file);
 
 
 	// Cleanup
