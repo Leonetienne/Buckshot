@@ -26,7 +26,7 @@ std::string SanitizeFilename(const std::string& fname)
         const char c = fname[i];
         
         bool keepChar = true;
-        if ((c == '<') || (c == '>') || (c == '"') || (c == '/') ||
+        if ((c == '<') || (c == '>') || (c == '"') || (c == '/') || (c == '\\') ||
             (c == '|') || (c == '?') || (c == '*') || (c == ':'))
         {
             keepChar = false;
@@ -94,8 +94,9 @@ void TakeScreenshot()
     // Save to file
     CreateDirectoryA("screenshots", NULL);
     std::stringstream filename;
-    filename << "screenshots\\" << winTitle << " - " << GetTimeString() << ".png";
-    png.SaveToFile(SanitizeFilename(filename.str()));
+    filename << winTitle << " - " << GetTimeString() << ".png";
+    //std::cout << filename.str() << std::endl;
+    png.SaveToFile(std::string("screenshots\\") + SanitizeFilename(filename.str()));
 
     //std::cout << "Saved png!" << std::endl;
 
