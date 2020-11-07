@@ -15,7 +15,7 @@ This is usually not a problem, but if Buckshot is open twice, it will take TWO s
 ## The config file
 
 Example config file with explanation
-```json
+```
 {
   # Show the debug console?
   "showDebugConsole": false,
@@ -61,7 +61,7 @@ NOTE!! The link shows the key codes in HEX!! The json file format only supports 
 Thankfully google does this for you! Just google `0x3e in decimal`.  
 
 So, to use let's say ALT+DEL as a keybind, you would do
-```json
+```
 # 18 is the key code of ALT and 46 is the key code of DEL
 "keybind": [ 18, 46 ]
 ```
