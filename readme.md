@@ -8,13 +8,13 @@ Just press F2 and your currently focussed application will get screenshotted!
 Fully configureable!  
 I personally recommend to put a link to Buckshot.exe in your startup directory.
 
-!!!NOTE If your executeable is named something other than `Buckshot.exe`, it won't detect multiple instances properly.  
+NOTE!! If your executeable is named something other than `Buckshot.exe`, it won't detect multiple instances properly.  
 This is usually not a problem, but if Buckshot is open twice, it will take TWO screenshots!
 
 
 ## The config file
-If you do not have a config file, run Buckshot once and it will create one for you.  
-Do note that Buckshot runs in the background by default and you will have to either kill it via taskmgr to start another instance and click "kill old instance".  
+NOTE!! If you do not have a config file, run Buckshot once and it will create one for you.  
+Do note that Buckshot runs in the background by default and you will have to either kill it via taskmgr or start another instance and click "kill old instance".  
 
 Example config file with explanation
 ```
@@ -92,7 +92,7 @@ Every illegal filename character will be removed.
 
 ## Custom save path
 You can specify a custom path for your images to be saved at. The default is the directory `screenshots` in Buckshots working directory.  
-NOTE!! You HAVE to use backslashes (\\) AND because of the json file format you HAVE to escape \\'s as \\\\
+NOTE!! You HAVE to use backslashes `\` AND because of the json file format you HAVE to escape `\`s as `\\`  
 NOTE!! The path HAS to already exist!
 
 ## Custom per-app settings
