@@ -1095,12 +1095,19 @@ void JsonArray::Parse(const std::string jsonCode)
 	return;
 }
 
-bool JasonPP::IsJsonValid(const std::string code)
+bool JasonPP::IsJsonValid(const std::string code, JsonData* out_parsedJson)
 {
 	try
 	{
-		JsonData jd;
-		jd.Parse(code);
+		if (out_parsedJson)
+		{
+			out_parsedJson->Parse(code);
+		}
+		else
+		{
+			JsonData jd;
+			jd.Parse(code);
+		}
 	}
 	catch (const JsonException&)
 	{
@@ -1358,6 +1365,307 @@ bool StringHelpers::IsNumeric(const std::string str, const bool allowDecimalPoin
     return digitCount > 0;
 }
 
+bool StringHelpers::ParseNumber(const std::string str, bool& out_isInt, long double& out_number)
+{
+    bool isNormalNum = true;
+
+    bool isHex = true;
+    bool isOctal = true;
+
+    bool isExponent = false;
+    bool isNegative = false;
+    bool isDecimal = false;
+
+    if (str.length() == 0) return false;
+    if (str[0] == '-') isNegative = true;
+
+    // Unsigned string
+    std::string uStr = ToLower(isNegative ? str.substr(1, str.size() - 1) : str);
+
+    if (uStr.length() < 3)
+    {
+        // Definitely neither hex, nor exponent
+        isHex = false;
+        isExponent = false;
+    }
+    else
+    {
+        // Definitely not hex
+        if (uStr[1] != 'x')
+        {
+            isHex = false;
+        }
+    }
+
+    if ((uStr.length() >= 2) && (uStr[0] == '0') && ((uStr[1] != '.') && (uStr[1] != 'e')))
+    {
+        // Definitely not normal.
+        // Could be hex or octal
+        isNormalNum = false;
+        isDecimal = false;
+        isExponent = false;
+    }
+    if (uStr[0] != '0')
+    {
+        // Definitely neither hex, nor octal
+        isHex = false;
+        isOctal = false;
+    }
+
+    // Check for normal num
+    if (isNormalNum)
+    {
+        for (std::size_t i = 0; i < uStr.length(); i++)
+        {
+            const char c = uStr[i];
+
+            // Already checked for [0] != 0
+            if (!((c >= '0') && (c <= '9')))
+            {
+                // Not the first char, not the last char, the first . and not after an e
+                if ((i > 0) && (i != uStr.length() - 1) && (uStr[i + 1] != 'e') && (c == '.') && (!isDecimal) && (!isExponent))
+                {
+                    isDecimal = true;
+                }
+                // Not the first char, not the last char and the first e
+                else if ((i > 0) && (i != uStr.length() - 1) && (c == 'e') && (!isExponent))
+                {
+                    isExponent = true;
+                }
+                // negative sign after exponent
+                else if ((isExponent) && (c == '-') && (uStr[i - 1] == 'e'))
+                {
+                    // Do nothing. Just prevent the else case.
+                }
+                else
+                {
+                    isDecimal = false;
+                    isNormalNum = false;
+                    isExponent = false;
+                    break;
+                }
+            }
+        }
+    }
+
+    // Check for octal
+    if (isOctal)
+    {
+        // We've already checked for i=0 == 0
+        for (std::size_t i = 1; i < uStr.length(); i++)
+        {
+            const char c = uStr[i];
+
+            // Already checked for [0] == 0
+            if (!((c >= '0') && (c <= '7')))
+            {
+                isOctal = false;
+                break;
+            }
+        }
+    }
+
+    // Check for hex
+    if (isHex)
+    {
+        // We've already checked for i=0 == 0 and i=1 == x
+        for (std::size_t i = 2; i < uStr.length(); i++)
+        {
+            const char c = uStr[i];
+
+            if (!(
+                ((c >= 'a') && (c <= 'f')) ||
+                ((c >= '0') && (c <= '9'))
+                ))
+            {
+                isHex = false;
+                break;
+            }
+        }
+    }
+
+    // Abort on failures
+    if (JASONPP_NO_ADVANCED_FEATURESET)
+    {
+        if (!isNormalNum) return false;
+    }
+    else
+    {
+        if ((!isNormalNum) && (!isOctal) && (!isHex)) return false;
+    }
+
+    // Convert the string
+    out_isInt = !isDecimal;
+
+    // Procedure for normal int
+    if (isNormalNum)
+    {
+        
+        if (!isExponent)
+        {
+            try
+            {
+                out_number = std::stold(uStr) * (isNegative ? -1 : 1);
+                return true;
+            }
+            catch (const std::invalid_argument&)
+            {
+                return false;
+            }
+            catch (const std::out_of_range&)
+            {
+                return false;
+            }
+        }
+        else
+        {
+            std::string numPreExp, numPostExp;
+            std::stringstream ss;
+            bool passedExp = false;
+            for (std::size_t i = 0; i < uStr.length(); i++)
+            {
+                const char c = uStr[i];
+                if (c != 'e')
+                {
+                    if (!passedExp)
+                    {
+                        ss << c;
+                    }
+                    else
+                    {
+                        ss << c;
+                    }
+                }
+                else
+                {
+                    passedExp = true;
+                    numPreExp = ss.str();
+                    ss.str("");
+                }
+            }
+            numPostExp = ss.str();
+
+            try
+            {
+                double exp = std::stold(numPostExp);
+                if (exp < 1.0) out_isInt = false;
+                out_number = std::stold(numPreExp) * (powl(10, exp)) * (isNegative ? -1 : 1);
+                return true;
+            }
+            catch (const std::invalid_argument&)
+            {
+                return false;
+            }
+            catch (const std::out_of_range&)
+            {
+                return false;
+            }
+        }
+    }
+    // Procedure for octal num
+    else if (isOctal)
+    {
+        out_number = (long double)Helpers::BaseX_2_10(uStr, "01234567") * (isNegative ? -1 : 1);
+        return true;
+    }
+    // Procedure for hex num
+    else if (isHex)
+    {
+        out_number = (long double)Helpers::BaseX_2_10(uStr, "0123456789abcdef") * (isNegative ? -1 : 1);
+        return true;
+    }
+    else // fuckup
+    {
+        return false;
+    }
+    
+
+    return true;
+}
+
+std::string StringHelpers::RemoveCommentsFromCode(const std::string jsonCode)
+{
+    std::ostringstream oss;
+    std::istringstream iss(jsonCode);
+
+    // We need numLines to add the correct number of newlines. (Not one too many)
+    std::size_t numLines = 0;
+    for (std::size_t i = 0; i < jsonCode.length(); i++) if (jsonCode[i] == '\n') numLines++;
+
+    std::size_t lineCounter = 0;
+    for (std::string line; std::getline(iss, line); lineCounter++)
+    {
+        bool addToCode = true;
+        std::size_t idxFirstChar = 0;
+
+        if (line.length() > 0)
+        {
+            // Move idxFirstChar to the first nonspace character
+            bool isLineJustSpace = true;
+            for (; (idxFirstChar < line.length()) && (isLineJustSpace); idxFirstChar++)
+            {
+                const char c = line[idxFirstChar];
+                if ((c != ' ') && (c != '\t'))
+                {
+                    isLineJustSpace = false;
+                    break;
+                }
+            }
+
+            // Only-Space line
+            if (isLineJustSpace) addToCode = false;
+
+            // #Comment
+            else if (line[idxFirstChar] == '#') addToCode = false;
+
+            // //Comment
+            else if (line.substr(idxFirstChar, 2) == "//") addToCode = false;
+
+        }
+        else addToCode = false; // Don't add empty lines to the code
+
+        if (addToCode)
+        {
+            // So far not an exclusive comment line.
+            // Let's check if there are comments behind actual code
+
+            bool areWeInString = false;
+            bool isEscaped = false;
+            bool containsComment = false;
+            std::size_t commentIdx = std::string::npos;
+
+            for (std::size_t i = 0; i < line.size(); i++)
+            {
+                const char c = line[i];
+                if ((!isEscaped) && (c == '"')) areWeInString = !areWeInString;
+                if (!areWeInString)
+                {
+                    if ((c == '#') ||
+                        ((i < line.size() - 1) && (line.substr(i, 2) == "//")))
+                    {
+                        containsComment = true;
+                        commentIdx = i;
+                        break;
+                    }
+                }
+
+                isEscaped = false;
+                if ((areWeInString) && (c == '\\')) isEscaped = true;
+            }
+
+            // If the line contains a comment, add the line until the comment
+            if (containsComment)
+            {
+                oss << line.substr(0, commentIdx);
+            }
+            // Else just add the whole line
+            else oss << line;
+            if (lineCounter < numLines) oss << std::endl;
+        }
+    }
+    return oss.str();
+}
+
 std::vector<std::string> StringHelpers::SplitString(const std::string str, const char delimiter)
 {
     if (str.length() == 0) return std::vector<std::string>();
@@ -1408,12 +1716,23 @@ std::vector<std::string> StringHelpers::SplitString(const std::string str, const
 
 std::string StringHelpers::MinifyJson(const std::string jsonCode)
 {
+    std::string code;
+    if (!JASONPP_NO_ADVANCED_FEATURESET)
+    {
+        // Remove commented lines
+        code = RemoveCommentsFromCode(jsonCode);
+    }
+    else if (JASONPP_NO_ADVANCED_FEATURESET)
+    {
+        code = jsonCode;
+    }
+
     std::stringstream ss;
     bool areWeInString = false;
     bool isCharEscaped = false;
-    for (std::size_t i = 0; i < jsonCode.length(); i++)
+    for (std::size_t i = 0; i < code.length(); i++)
     {
-        const char c = jsonCode[i];
+        const char c = code[i];
 
         if (areWeInString)
         {
@@ -2042,47 +2361,37 @@ void JsonData::Parse(const std::string jsonCode)
 	// Minify code for easier parsing
 	const std::string minifiedCode = StringHelpers::MinifyJson(jsonCode);
 
+	bool numparser_out_isInt;
+	long double numparser_out_value;
+
 	if (minifiedCode.length() == 0) throw JsonParsingGeneralException("JsonData-Parser got json code snippet of length 0!");
 
-	if (minifiedCode == "null")  // Datatype null
+	// Datatype null
+	if (minifiedCode == "null")
 	{
 		SetNull();
 	}
-	else if ((minifiedCode == "true") || (minifiedCode == "false")) // Datatype bool
+	// Datatype bool
+	else if ((minifiedCode == "true") || (minifiedCode == "false"))
 	{
 		SetBoolData(minifiedCode == "true");
 	}
-	else if (StringHelpers::IsNumeric(minifiedCode)) // Datatype int
+	// Datatype number
+	else if (StringHelpers::ParseNumber(minifiedCode, numparser_out_isInt, numparser_out_value))
 	{
-		try
+		// Datatype int
+		if (numparser_out_isInt)
 		{
-			SetIntData(std::stoll(minifiedCode));
+			SetIntData((long long int)numparser_out_value);
 		}
-		catch (const std::invalid_argument&)
+		// Datatype float
+		else
 		{
-			throw JsonParsingGeneralException(std::string("std::stoll failed while parsing numeric json value! Value was \"") + minifiedCode + std::string("\""));
-		}
-		catch (const std::out_of_range&)
-		{
-			throw JsonParsingGeneralException(std::string("std::stoll failed because the number found was too large for a long long int! Value was \"") + minifiedCode + std::string("\""));
+			SetFloatData(numparser_out_value);
 		}
 	}
-	else if (StringHelpers::IsNumeric(minifiedCode, true)) // Datatype float
-	{
-		try
-		{
-			SetFloatData(std::stold(minifiedCode));
-		}
-		catch (const std::invalid_argument&)
-		{
-			throw JsonParsingGeneralException(std::string("std::stold failed while parsing numeric json value! Value was \"") + minifiedCode + std::string("\""));
-		}
-		catch (const std::out_of_range&)
-		{
-			throw JsonParsingGeneralException(std::string("std::stold failed because the number found was too large for a long double! Value was \"") + minifiedCode + std::string("\""));
-		}
-	}
-	else if (minifiedCode[0] == '\"') // Datatype string
+	// Datatype string
+	else if (minifiedCode[0] == '\"')
 	{
 		if (minifiedCode[minifiedCode.length() - 1] != '\"') throw JsonParsingMissingBracketsException();
 
@@ -2090,14 +2399,16 @@ void JsonData::Parse(const std::string jsonCode)
 		std::string strUnescaped = StringHelpers::Unescape(strWithoutQuotes);
 		SetStringData(strUnescaped);
 	}
-	else if (minifiedCode[0] == '{') // Datatype json
+	// Datatype json
+	else if (minifiedCode[0] == '{')
 	{
 		// Delegate further parsing to the json class
 		JsonBlock* newJsonBlock = new JsonBlock;
 		newJsonBlock->Parse(minifiedCode);
 		SetJsonDataAsPointer(newJsonBlock);
 	}
-	else if (minifiedCode[0] == '[') // Datatype array
+	// Datatype array
+	else if (minifiedCode[0] == '[')
 	{
 		JsonArray* newJsonArray = new JsonArray;
 		newJsonArray->Parse(minifiedCode);

@@ -106,17 +106,17 @@ void Config::GenerateDefaultFile()
         << "# savePathsPerApp: Overwrite the save path for specific apps" << std::endl
         << "# namingSchemePerApp: Overwrite the naming scheme for specific apps" << std::endl
         << std::endl
-        << "# keybind: An array of key-ids that need to be pressed all at once to take a screenshot. The default (113) is just F2. " << std::endl
-        << "#    To use, let's say, ALT+DEL you would use this: \"\"keybind\": [ 18, 46 ]\" 18 is they key id of ALT and 46 of DEL." << std::endl
+        << "# keybind: An array of key-ids that need to be pressed all at once to take a screenshot. The default (0x71) is just F2. " << std::endl
+        << "#    To use, let's say, ALT+DEL you would use this: \"\"keybind\": [ 0x12, 0x2E ]\" 0x12 is they key id of ALT and 0x2E of DEL." << std::endl
         << "#    A complete list of key ids: https://docs.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes" << std::endl
-        << "#    Do note that the key ids listed there are HEXADECIMAL! Json only supports DECIMAL values!" << std::endl
+        << "#    You are free to enter either decimal or hexadecimal ID's. " << std::endl
         << "#    A few more commonly used key ids are: " << std::endl
-        << "#       LSHIFT    : 160" << std::endl
-        << "#       RSHIFT    : 161" << std::endl
-        << "#       LCTRL     : 162" << std::endl
-        << "#       RCTRL     : 163" << std::endl
-        << "#       ALT       : 18" << std::endl
-        << "#       DEL       : 46" << std::endl
+        << "#       LSHIFT    : 0xA0" << std::endl
+        << "#       RSHIFT    : 0xA1" << std::endl
+        << "#       LCTRL     : 0xA2" << std::endl
+        << "#       RCTRL     : 0xA3" << std::endl
+        << "#       ALT       : 0x12" << std::endl
+        << "#       DEL       : 0x2E" << std::endl
         << "#       F1-F24    : 112 - 136" << std::endl
         << "#       0-9       : 48 - 57" << std::endl
         << "#       0-9 numpad: 96 - 105" << std::endl

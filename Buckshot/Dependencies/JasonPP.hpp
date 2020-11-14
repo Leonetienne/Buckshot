@@ -241,22 +241,8 @@ namespace JasonPP
 			return message.c_str();
 		};
 
-	private:
+	protected:
 		std::string message;
-
-		friend class JsonWrongDataTypeException;
-		friend class JsonLabelDoesNotExistException;
-		friend class JsonLabelAlreadyExistsException;
-		friend class JsonParsingMissingBracketsException;
-		friend class JsonParsingMissingQuotesException;
-		friend class JsonParsingExpectedEOFException;
-		friend class JsonParsingGeneralException;
-		friend class JsonParsingDuplicateLabelException;
-		friend class JsonParsingUnrecognizableDatatypeException;
-		friend class JsonParsingUTFSequenceException;
-		friend class JsonShorthandInvalidException;
-		friend class JsonNoParentAvailableException;
-		friend class JsonArrayOutOfRangeException;
 	};
 
 	class JsonWrongDataTypeException : public JsonException
@@ -989,8 +975,9 @@ namespace JasonPP
 	/// Will return whether or not the supplied json code is valid
 	/// </summary>
 	/// <param name="code">The json code to check</param>
+	/// <param name="out_parsedJson">Optional parameter. Directly store parsed json in there</param>
 	/// <returns>Whether or not this json code is valid</returns>
-	bool IsJsonValid(const std::string code);
+	bool IsJsonValid(const std::string code, JsonData* out_parsedJson = 0x0);
 
 	/// <summary>
 	/// Will convert a json data type to it's string name
@@ -1053,6 +1040,15 @@ namespace JasonPP
 	#define JASONPP_LEAVE_UTF8_ALONE false
 #endif
 
+/* If defined, JasonPP will no longer automatically parse UTF-8 escape sequences like "\u00b7" */
+#ifdef JASONPP_NO_ADVANCED_FEATURESET
+#undef JASONPP_NO_ADVANCED_FEATURESET
+#define JASONPP_NO_ADVANCED_FEATURESET true
+#else
+#undef JASONPP_NO_ADVANCED_FEATURESET
+#define JASONPP_NO_ADVANCED_FEATURESET false
+#endif
+
 /* All this #undef stuff is to make the compiler shut the fuck up i know that i am redifining macros! I intended that! */
 
 
@@ -1112,6 +1108,21 @@ namespace JasonPP
 			/// <param name="allowDecimalPoint">Whether or not to see decimal values as numeric values</param>
 			/// <returns>Whether or not this string is numerical</returns>
 			static bool IsNumeric(const std::string str, const bool allowDecimalPoint = false);
+
+			/// <summary>
+			/// Will convert the number in str to a number. It will parse stuff such as 5.3e2, and hex.
+			/// </summary>
+			/// <param name="str">The string containing the numeric</param>
+			/// <param name="out_isInt">Returns whether or not the num is an integer</param>
+			/// <param name="out_number">Returns the actual number</param>
+			/// <returns>Was the conversion successful?</returns>
+			static bool ParseNumber(const std::string str, bool& out_isInt, long double& out_number);
+
+			/// <summary>
+			/// Will remove empty lines, comments (# and //) from code
+			/// </summary>
+			/// <param name="str">The code</param>
+			static std::string RemoveCommentsFromCode(const std::string jsonCode);
 
 			/// <summary>
 			/// Will split a string by a delimiter char. The delimiter will be excluded!
@@ -2178,7 +2189,7 @@ namespace JasonPP
 	};
 }
 
-#define JASONPP_VERSION (1.025)
+#define JASONPP_VERSION (1.03)
 
 namespace JasonPP
 {

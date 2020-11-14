@@ -25,7 +25,7 @@ Example config file with explanation
   # All these VK-Ids have to be pressed at once.
   # Default is just F2
   "keybind": [
-    113
+    0x71
   ],
 
   # Put all screenshots there
@@ -59,23 +59,22 @@ Example config file with explanation
 
 ## Custom keybinds
 The keybind is just a list of [Virtual Keycodes](https://docs.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes).  
-NOTE!! The link shows the key codes in HEX!! The json file format only supports DECIMAL! You have to translate them.  
-Thankfully google does this for you! Just google `0x3e in decimal`.  
+You can either use decimal (`123`) or hexadecimal (`0x7B`) values as key id's.
 
 So, to use let's say ALT+DEL as a keybind, you would do
 ```
-# 18 is the key code of ALT and 46 is the key code of DEL
-"keybind": [ 18, 46 ]
+# `0x12` is the key code of ALT and `0x2E` is the key code of DEL
+"keybind": [ 0x12, 0x2E ]
 ```
 
 Common key codes are:
 ```
-LSHIFT    : 160
-RSHIFT    : 161
-LCTRL     : 162
-RCTRL     : 163
-ALT       : 18
-DEL       : 46
+LSHIFT    : 0xA0
+RSHIFT    : 0xA1
+LCTRL     : 0xA2
+RCTRL     : 0xA3
+ALT       : 0x12
+DEL       : 0x2E
 F1-F24    : 112 - 136
 0-9       : 48 - 57
 0-9 numpad: 96 - 105
